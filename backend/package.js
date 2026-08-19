@@ -1,0 +1,22 @@
+{
+  "name": "mtn-momo-loan-cameroon",
+  "version": "2.0.0",
+  "description": "MTN MoMo Loan Application - Cameroon Version with All Features",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "node-fetch": "^2.7.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

